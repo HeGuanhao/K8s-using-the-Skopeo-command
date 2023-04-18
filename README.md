@@ -1,0 +1,1 @@
+# K8s-using-the-Skopeo-command
