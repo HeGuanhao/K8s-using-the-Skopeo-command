@@ -2,9 +2,32 @@
 
 set -e
 
-if ! nerdctl ps | grep -q registry; then
-    echo "need a docker registry server on local"
-    exit 1
+# 定义要检查的Skopeo版本和归档文件
+SKOPEO_VERSION="v1.11.1"
+SKOPEO_ARCHIVE="skopeo-${SKOPEO_VERSION}-linux-$(uname -m).tar.gz"
+SKOPEO_TARGET_DIR="/usr/bin"
+
+# 检查skopeo命令是否存在
+if command -v skopeo &> /dev/null
+then
+    echo "skopeo is already installed."
+else
+    echo "skopeo is not installed. Checking for the archive file..."
+    # 检查归档文件是否存在
+    if [ -f "$SKOPEO_ARCHIVE" ]; then
+        echo "Archive file $SKOPEO_ARCHIVE found. Extracting to $SKOPEO_TARGET_DIR..."
+        # 解压归档文件到/usr/bin
+        if sudo tar -zxf "$SKOPEO_ARCHIVE" -C "$SKOPEO_TARGET_DIR"
+        then
+            echo "skopeo has been installed successfully."
+        else
+            echo "Failed to install skopeo from archive."
+            exit 1
+        fi
+    else
+        echo "Archive file $SKOPEO_ARCHIVE does not exist. Cannot install skopeo."
+        exit 1
+    fi
 fi
 
 POSITIONAL=()
